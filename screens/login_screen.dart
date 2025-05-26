@@ -1,8 +1,8 @@
 // lib/screens/login_screen.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:k_taste/screens/main_page.dart';
 import 'signup_screen.dart';
-import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!mounted) return; //await 또는 Timer 이후 Navigator 쓴다면 if (!mounted) return; 은 무조건 넣자.
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => const MainPage()),
       );
     } on FirebaseAuthException catch (e) {
       setState(() { _error = e.message; });

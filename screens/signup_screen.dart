@@ -1,7 +1,7 @@
 // lib/screens/signup_screen.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'main_page.dart';
+import './login_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -29,7 +29,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       // 회원가입 성공하면 바로 홈으로
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const MainPage()),
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
             (route) => false,
       );
     } on FirebaseAuthException catch (e) {
