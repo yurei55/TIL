@@ -20,7 +20,7 @@ const GanttChart = () => {
     },
     {
       id: "3",
-      name: "회원가입/리뷰 기능 구현",
+      name: "회원가입/로그인 기능 구현",
       start: "2025-05-22",
       end: "2025-06-04",
       progress: 80
@@ -34,7 +34,7 @@ const GanttChart = () => {
     },
     {
       id: "5",
-      name: "북마크 및 필터링 기능",
+      name: "커뮤니티 기능",
       start: "2025-06-12",
       end: "2025-06-18",
       progress: 0
