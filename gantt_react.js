@@ -23,14 +23,14 @@ const GanttChart = () => {
       name: "회원가입/로그인 기능 구현",
       start: "2025-05-22",
       end: "2025-06-04",
-      progress: 80
+      progress: 90
     },
     {
       id: "4",
       name: "위치 기반 서비스/지도 기능",
       start: "2025-06-05",
       end: "2025-06-11",
-      progress: 60
+      progress: 70
     },
     {
       id: "5",
