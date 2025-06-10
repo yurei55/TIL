@@ -1,6 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -11,7 +14,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   GoogleMapController? _mapController;
-  LatLng _currentPos = const LatLng(37.5665, 126.9780); // 초기값 (서울 시청)
+  LatLng _currentPos = const LatLng(37.5665, 126.9780);
+  Set<Marker> _markers = {};
 
   @override
   void initState() {
@@ -20,36 +24,73 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _initLocation() async {
-    // 위치 서비스 활성화 확인
+    print('🛰️ 위치 권한 확인 중...');
     bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // 위치 서비스 꺼져 있으면 종료
+      print('⚠️ 위치 서비스 꺼져 있음');
       return;
     }
 
-    // 권한 확인 및 요청
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied ||
-          permission == LocationPermission.deniedForever) {
+      if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+        print('❌ 위치 권한 거부됨');
         return;
       }
     }
 
-    // 현재 위치 얻기
-    final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    setState(() {
-      _currentPos = LatLng(position.latitude, position.longitude);
-    });
+    final position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    _currentPos = LatLng(position.latitude, position.longitude);
+    print('✅ 위치 가져옴: $_currentPos');
 
-    // 지도 카메라 이동
+    await _fetchNearbyRestaurants();
+
+    setState(() {}); // 위치 및 마커 반영
+
     _mapController?.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(target: _currentPos, zoom: 15),
       ),
     );
+  }
+
+  Future<void> _fetchNearbyRestaurants() async {
+    final apiKey = dotenv.env['GOOGLE_API_KEY'];
+    print('🌐 Places API 요청 시작...');
+
+    final url =
+        'https://maps.googleapis.com/maps/api/place/nearbysearch/json'
+        '?location=${_currentPos.latitude},${_currentPos.longitude}'
+        '&radius=1000&type=restaurant&key=$apiKey';
+
+    final response = await http.get(Uri.parse(url));
+    final data = json.decode(response.body);
+
+    print('📦 Places API 응답 상태: ${data['status']}');
+
+    if (data['status'] == 'OK') {
+      final List results = data['results'];
+      print('🍽️ 검색된 식당 수: ${results.length}');
+      final newMarkers = results.map((place) {
+        final lat = place['geometry']['location']['lat'];
+        final lng = place['geometry']['location']['lng'];
+        final name = place['name'];
+
+        return Marker(
+          markerId: MarkerId(place['place_id']),
+          position: LatLng(lat, lng),
+          infoWindow: InfoWindow(title: name),
+        );
+      }).toSet();
+
+      setState(() {
+        _markers = newMarkers;
+      });
+    } else {
+      print('❌ Places API Error: ${data['status']}');
+      print('⚠️ 응답 전체 내용: $data');
+    }
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -64,7 +105,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          // 검색창
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
@@ -76,12 +116,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               onSubmitted: (query) {
-                // TODO: 위치 기반 검색 로직 추가
+                // TODO: 나중에 검색 기능
               },
             ),
           ),
-
-          // 지도
           Expanded(
             child: GoogleMap(
               onMapCreated: _onMapCreated,
@@ -92,13 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
               myLocationEnabled: true,
               myLocationButtonEnabled: true,
               zoomControlsEnabled: false,
-              markers: {
-                Marker(
-                  markerId: const MarkerId('current'),
-                  position: _currentPos,
-                  infoWindow: const InfoWindow(title: '내 위치'),
-                ),
-              },
+              markers: _markers,
             ),
           ),
         ],

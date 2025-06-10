@@ -25,10 +25,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
     Navigator.pushReplacement(
       context,
-      // MaterialPageRoute(
-      //   builder: (_) => user == null ? const LoginScreen() : const MainPage(), //자동로그인 임시 비활성화
-      // ),
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
+       MaterialPageRoute(
+         builder: (_) => user == null ? const LoginScreen() : const MainPage(), //자동로그인 임시 비활성화 시 비활성
+       ),
+      // MaterialPageRoute(builder: (_) => const LoginScreen()), //자동로그인 임시 비활성 시 활성
     );
   }
 
