@@ -53,7 +53,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBg68Lazd8Nu0uSYP7B6frmC2JT9DkdsC4',
+    apiKey: 'api',
     appId: '1:592572462880:android:2a6d9ff123e5a9e9050945',
     messagingSenderId: '592572462880',
     projectId: 'ktaste-app',
