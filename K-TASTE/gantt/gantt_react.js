@@ -44,7 +44,7 @@ const GanttChart = () => {
       name: "리뷰 기능",
       start: "2025-06-14",
       end: "2025-06-22",
-      progress: 20,
+      progress: 50,
     },
     {
       id: "7",
